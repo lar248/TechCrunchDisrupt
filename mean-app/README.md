@@ -32,9 +32,6 @@ To get more help on the `angular-cli` use `ng help` or go check out the [Angular
 
 ## NPM installations
 `npm install -g angular-cli`
-`ng new mean-app`
-At this point, you can serve the application as stated above: `ng serve`
-`npm install --save express body-parser`
-At this point, you need to build the Angular app because the catch-all route is dist/index.html: `ng build` 
-`node server.js`
-`npm install --save axios`
+more modules to install
+`npm install --save express body-parser axios`
+At this point, you need to build the Angular app because the catch-all route is dist/index.html: `npm run build`
