@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const fs = require('fs');
+const spawn = require("child_process").spawn;
 
 // declare axios for making http requests
 const axios = require('axios');
@@ -85,6 +86,22 @@ router.get('/audioFiles', (req, res) => {
   Promise.all(synthesizedParams).then(() => {
     res.send('DONE');
   });
+
+// Get summary from Python scripts
+router.get('/summary', (req, res) => {
+  const url = 'https://www.nytimes.com/2017/05/13/technology/google-education-chromebooks-schools.html'
+  const process = spawn('python',["./server/summary_generator/gen_summary.py", url]);
+
+  process.stdout.on('data', data => {
+    console.log('data ' + data);
+  });
+
+  process.on('close', (code, error) => {
+    console.log('child process exits with code: ' + code)
+    console.log('error:', error)
+  }); 
+
+  res.send('DONE');
 });
 
 module.exports = router;
