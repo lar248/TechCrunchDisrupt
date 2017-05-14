@@ -98,22 +98,21 @@ router.get('/audioFiles', (req, res) => {
     //res.send('DONE');
     var imagesWithTime = [];
     
-    // params.map(param => {
-    //   probe(param.name+".wav", function(err, probeData) {
-    //       const loopTime = probeData.streams[0].duration;
-    //       imagesWithTime.push({path: param.name+".jpg", loop: loopTime});
-    //       console.log({path: param.name+".jpg", loop: loopTime});
-    //       const command = "ffmpeg -loop 1 -i " +param.name+".jpg " +"-c:v libx264 -t 5 -pix_fmt yuv420p "+ param.name+".mp4";
-    //       exec(command, (error, stdout, stderr) => {
-    //         resolve;
-    //       });
-    //   });
-    // });
+    params.map(param => {
+      probe(param.name+".wav", function(err, probeData) {
+          const loopTime = probeData.streams[0].duration;
+          imagesWithTime.push({path: param.name+".jpg", loop: loopTime});
+          console.log({path: param.name+".jpg", loop: loopTime});
+          const command = "ffmpeg -loop 1 -i " +param.name+".jpg " +"-c:v libx264 -t 5 -pix_fmt yuv420p "+ param.name+".mp4";
+          exec(command, (error, stdout, stderr) => {
+            resolve;
+          });
+      });
+    });
 
     var commands = ["ffmpeg -loop 1 -i test1.jpg -c:v libx264 -t 5 -pix_fmt yuv420p test1.mp4", "ffmpeg -loop 1 -i test2.jpg -c:v libx264 -t 5 -pix_fmt yuv420p test2.mp4"];
     Promise.mapSeries(commands, execP).then(function(results) {
         // all results here
-        console.log("dafdafa");
     }, function(err) {
         // error here
     });
@@ -146,7 +145,6 @@ router.get('/audioFiles', (req, res) => {
     //     console.error(`exec error: ${error}`);
     //     return;
     //   }
-    console.log("correct");
 
     //   var videoOptions = {
     //     fps: 25,
