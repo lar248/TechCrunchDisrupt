@@ -34,37 +34,58 @@ router.get('/audioFiles', (req, res) => {
 	  password: 'vOqPCZimtU6I'
 	});
 
-  var param2 = {
-		text: 'This is a very nice place to visit if you are free',
-	  	voice: 'en-US_AllisonVoice',
-	  	accept: 'audio/wav',
-	  	order: '2'
+  var param1 = {
+		text: 'This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit ',
+    voice: 'en-US_AllisonVoice',
+    accept: 'audio/wav',
+    name: 'test1'
 	};
 
-	var param1 = {
+	var param2 = {
 	  text: 'Hello world I like this!',
 	  voice: 'en-US_AllisonVoice',
 	  accept: 'audio/wav',
-	  order: '1'
+	  name: 'test2'
 	};
 
 	var param3 = {
 	  text: 'Just curious how this is gonna work, can you tell me',
 	  voice: 'en-US_AllisonVoice',
 	  accept: 'audio/wav',
-	  order: '3'
+	  name: 'test3'
+	};
+
+  var param4 = {
+	  text: 'poopy',
+	  voice: 'en-US_AllisonVoice',
+	  accept: 'audio/wav',
+	  name: 'test4'
+	};
+
+  var param5 = {
+	  text: 'wtf wtf wtf i dont know why we do this shit but we also love it wtf wtf wtf i dont know why we do this shit but we also love it wtf wtf wtf i dont know why we do this shit but we also love itwtf wtf wtf i dont know why we do this shit but we also love it',
+	  voice: 'en-US_AllisonVoice',
+	  accept: 'audio/wav',
+	  name: 'test5'
 	};
 
   var params = [];
 	params.push(param1);
 	params.push(param2);
 	params.push(param3);
+  params.push(param4);
+	params.push(param5);
 
-  params.forEach(function(ele){
-		text_to_speech.synthesize(ele).on('error', function(error) {
-	  		console.log('Error:', error);
-		}).pipe(fs.createWriteStream(ele.order+'.wav'));
-	})
+  const synthesizedParams = params.map(param => new Promise((resolve, reject) => {
+    return text_to_speech.synthesize(param).on('error', function(error) {
+	  		console.log('Error:', error + 'for this element: ', param);
+		}).pipe(fs.createWriteStream(param.name + '.wav')).on("finish", resolve);
+  }));
+
+  Promise.all(synthesizedParams).then(() => {
+    console.log("all the files were fully completed");
+    res.send('DONE');
+  });
 });
 
 module.exports = router;
