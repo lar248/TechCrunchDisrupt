@@ -17,7 +17,14 @@ def generate_summary_from_url(url):
 	summary = unicode(first_para) + '\n ' + unicode(summarize.summarize_page(url))  + '\n ' + unicode(last_para)
 	final_summary = replace_unwanted_chars(summary)
 	return json.dumps(nltk.sent_tokenize(final_summary))
-	
+
+def generate_summary_from_url_without_json(url):
+	url = str(url)
+	first_para, last_para = summarize.get_first_and_last_para(url)
+	summary = unicode(first_para) + '\n ' + unicode(summarize.summarize_page(url))  + '\n ' + unicode(last_para)
+	final_summary = replace_unwanted_chars(summary)
+	return nltk.sent_tokenize(final_summary)
+
 
 def generate_summary_from_text(text):
 	text = unicode(text)

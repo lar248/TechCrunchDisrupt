@@ -1,8 +1,7 @@
 import nltk
 from collections import defaultdict
-
-def generate_search_strings():
-	pass
+import gen_summary
+import sys
 
 def generate_pos(sentence):
 	return nltk.pos_tag(sentence)
@@ -45,9 +44,19 @@ def match_rules(tagged_text):
  		query = generate_default_query(tagged_text, tag_to_count, tag_to_words)
  	return query
 
-a = t.split(a)
+def generate_search_strings(url): 
+	sentences_array = gen_summary.generate_summary_from_url_without_json(url)
+	queries_array = []
+	for sentence in sentences_array:
+		tagged_text = generate_pos(sentence.split(' '))
+		queries_array.append(match_rules(tagged_text))
+	return queries_array
 
-nltk.pos_tag(a)
 
-text = "Although business practices like encouraging educators to spread the word to their peers have become commonplace among education technology firms, Google has successfully deployed these techniques on a such a large scale that some critics say the company has co-opted public school employees to gain market dominance."
-sentence = text.split(' ')
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        print(generate_search_strings(sys.argv[1]))
+        sys.stdout.flush()
+        sys.exit(0)
+    print('Usage summarize.py <URL>')
+    sys.exit(1)
