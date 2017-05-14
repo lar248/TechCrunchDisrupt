@@ -78,12 +78,11 @@ router.get('/audioFiles', (req, res) => {
 
   const synthesizedParams = params.map(param => new Promise((resolve, reject) => {
     return text_to_speech.synthesize(param).on('error', function(error) {
-	  		console.log('Error:', error + 'for this element: ', param);
+	  		console.log('Error:', error + ' for this element: ', param);
 		}).pipe(fs.createWriteStream(param.name + '.wav')).on("finish", resolve);
   }));
 
   Promise.all(synthesizedParams).then(() => {
-    console.log("all the files were fully completed");
     res.send('DONE');
   });
 });

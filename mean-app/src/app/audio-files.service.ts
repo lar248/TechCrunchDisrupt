@@ -10,8 +10,7 @@ export class AudioFilesService {
   getAllAudioFiles() {
     return this.http.get('/api/audioFiles')
       .map(res => {
-        console.log('AUDI FILES: res audio files: ', res);
-        // res.json()
+        return res.ok;
       });
   }
 }
