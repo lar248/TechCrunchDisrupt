@@ -9,9 +9,7 @@ export class GenerateArticleSummaryService {
 
   getSummary() {
   	return this.http.get('/api/summary')
-  		.map(res => {
-  			console.log('are we inside summary? ', res)
-  		});
+  		.map(data => JSON.parse(data['_body']));
   }
 
 }

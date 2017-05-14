@@ -86,6 +86,7 @@ router.get('/audioFiles', (req, res) => {
   Promise.all(synthesizedParams).then(() => {
     res.send('DONE');
   });
+});
 
 // Get summary from Python scripts
 router.get('/summary', (req, res) => {
@@ -94,14 +95,13 @@ router.get('/summary', (req, res) => {
 
   process.stdout.on('data', data => {
     console.log('data ' + data);
+    res.status(200).end(data);
   });
 
   process.on('close', (code, error) => {
     console.log('child process exits with code: ' + code)
     console.log('error:', error)
   }); 
-
-  res.send('DONE');
 });
 
 module.exports = router;

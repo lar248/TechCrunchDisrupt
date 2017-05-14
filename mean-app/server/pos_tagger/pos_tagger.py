@@ -1,5 +1,8 @@
 import nltk
 
+def generate_search_strings():
+	pass
+
 def generate_pos(sentence):
 	return nltk.pos_tag(sentence)
 
