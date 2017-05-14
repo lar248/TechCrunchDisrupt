@@ -2,6 +2,16 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 
+const ConversationV1 = require('watson-developer-cloud/conversation/v1');
+
+// Set up Conversation service wrapper.
+const conversation = new ConversationV1({
+  username: '764256f0-1261-4c0b-9172-3a9647b9f9c8', // replace with username from service key
+  password: 'FK2bD1T0UyHH', // replace with password from service key
+  path: { workspace_id: 'fbea1d2d-90b5-4dbf-828d-ac745cf9c762' }, // replace with workspace ID
+  version_date: '2016-07-11'
+});
+
 // declare axios for making http requests
 const axios = require('axios');
 const API = 'https://jsonplaceholder.typicode.com';
@@ -85,6 +95,38 @@ router.get('/audioFiles', (req, res) => {
   Promise.all(synthesizedParams).then(() => {
     res.send('DONE');
   });
+});
+
+// Get chat bot back end implementation
+router.get('/chatBot', function(req, res, next) {
+  // Start conversation with empty message.
+  if (req.userInput){
+    conversation.message({
+        input: { text: req.userInput },
+        context: req.context
+      }, 
+      processResponse);
+  } else {
+    conversation.message({}, processResponse);
+  }
+  
+  // Process the conversation response.
+  function processResponse(err, response) {
+    if (err) {
+      console.error(err); // something went wrong
+      return;
+    }
+
+    // Display the output from dialog, if any.
+    if (response.output.text.length != 0) {
+        console.log(response.output.text[0]);
+        //send the output back to the front end
+        res.status(200).json({
+            returnMessage: response.output.text[0],
+            jsonContext: response.context
+        });
+    }
+  }
 });
 
 module.exports = router;
