@@ -2,6 +2,11 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const spawn = require("child_process").spawn;
+const exec = require('child_process').exec;
+const probe = require('node-ffprobe');
+const videoShow = require('videoshow');
+const Promise = require('bluebird');
+const execP = Promise.promisify(require('child_process').exec);
 
 // declare axios for making http requests
 const axios = require('axios');
@@ -35,13 +40,18 @@ router.get('/audioFiles', (req, res) => {
 	  password: 'vOqPCZimtU6I'
 	});
 
+  // var param1 = {
+	// 	text: 'This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit ',
+  //   voice: 'en-US_AllisonVoice',
+  //   accept: 'audio/wav',
+  //   name: 'test1'
+	// };
   var param1 = {
-		text: 'This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are freeThis is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit if you are free. This is a very nice place to visit ',
+		text: 'This is a very nice place to visit if you are free',
     voice: 'en-US_AllisonVoice',
     accept: 'audio/wav',
     name: 'test1'
 	};
-
 	var param2 = {
 	  text: 'Hello world I like this!',
 	  voice: 'en-US_AllisonVoice',
@@ -73,18 +83,97 @@ router.get('/audioFiles', (req, res) => {
   var params = [];
 	params.push(param1);
 	params.push(param2);
-	params.push(param3);
-  params.push(param4);
-	params.push(param5);
+	// params.push(param3);
+  // params.push(param4);
+	// params.push(param5);
 
   const synthesizedParams = params.map(param => new Promise((resolve, reject) => {
     return text_to_speech.synthesize(param).on('error', function(error) {
 	  		console.log('Error:', error + ' for this element: ', param);
 		}).pipe(fs.createWriteStream(param.name + '.wav')).on("finish", resolve);
+
   }));
 
   Promise.all(synthesizedParams).then(() => {
-    res.send('DONE');
+    //res.send('DONE');
+    var imagesWithTime = [];
+    
+    params.map(param => {
+      probe(param.name+".wav", function(err, probeData) {
+          const loopTime = probeData.streams[0].duration;
+          imagesWithTime.push({path: param.name+".jpg", loop: loopTime});
+          console.log({path: param.name+".jpg", loop: loopTime});
+          const command = "ffmpeg -loop 1 -i " +param.name+".jpg " +"-c:v libx264 -t 5 -pix_fmt yuv420p "+ param.name+".mp4";
+          exec(command, (error, stdout, stderr) => {
+            resolve;
+          });
+      });
+    });
+
+    var commands = ["ffmpeg -loop 1 -i test1.jpg -c:v libx264 -t 5 -pix_fmt yuv420p test1.mp4", "ffmpeg -loop 1 -i test2.jpg -c:v libx264 -t 5 -pix_fmt yuv420p test2.mp4"];
+    Promise.mapSeries(commands, execP).then(function(results) {
+        // all results here
+    }, function(err) {
+        // error here
+    });
+    // imagesWithTime = ["test1.jpg", 'test2.jpg'];
+    // var videoOptions = {
+    //      fps: 24,
+    //      loop:2,
+    //       transition: false,
+    //       videoBitrate: 1024 ,
+    //       videoCodec: 'libx264', 
+    //       size: '640x640',
+    //       outputOptions: ['-pix_fmt yuv420p'],
+    //       format: 'mp4' 
+    //   }
+
+    //   videoShow(imagesWithTime, videoOptions)
+    //     .save("output.mp4")
+    //     .on('start', function (command) {
+    //         console.log('ffmpeg process started:', command)
+    //     })
+    //     .on('error', function (err, stdout, stderr) {
+    //         console.error('Error:', err)
+    //         console.error('ffmpeg stderr:', stderr)
+    //     })
+    //     .on('end', function (output) {
+    //         console.error('Video created in:', output)
+    //     });
+    // exec("ffmpeg -i test1.wav -i silent.wav -i test2.wav -i silent.wav  -filter_complex '[0:0][1:0][2:0][3:0]concat=n=4:v=0:a=1[out]' -map '[out]' output.wav", (error, stdout, stderr) => {
+    //   if (error) {
+    //     console.error(`exec error: ${error}`);
+    //     return;
+    //   }
+
+    //   var videoOptions = {
+    //     fps: 25,
+    //     transition: true,
+    //     transitionDuration: 1, // seconds
+    //     videoBitrate: 1024,
+    //     videoCodec: 'libx264',
+    //     size: '640x?',
+    //     audioBitrate: '128k',
+    //     audioChannels: 2,
+    //     format: 'mp4',
+    //     pixelFormat: 'yuv420p'
+    //   }
+
+    //   videoShow(imagesWithTime, videoOptions)
+    //     .audio("output.wav")
+    //     .save("output.mp4")
+    //     .on('start', function (command) {
+    //         console.log('ffmpeg process started:', command)
+    //     })
+    //     .on('error', function (err, stdout, stderr) {
+    //         console.error('Error:', err)
+    //         console.error('ffmpeg stderr:', stderr)
+    //     })
+    //     .on('end', function (output) {
+    //         console.error('Video created in:', output)
+    //     });
+
+    // });
   });
 });
 
